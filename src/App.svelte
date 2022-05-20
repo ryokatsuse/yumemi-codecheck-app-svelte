@@ -1,11 +1,34 @@
 <script lang="ts">
   import Header from './components/Header.svelte';
+  import CheckBox from './components/CheckBox.svelte';
+  import {api} from './api'
+  const API_KEY = process.env.API_KEY
+
+  const fetchPrefectures = async () => {
+    const response = await api.getPrefectures(API_KEY)
+
+    if (response.ok) {
+      const body = await response.json();
+      const res = body.result
+      return res;
+    }
+
+    const error: Error = new Error('データを取得できませんでした。');
+    throw error;
+  };
+
 </script>
 
 <div class="app">
   <Header />
   <main>
-    <!-- add checkboxes, Graph -->
+    {#await fetchPrefectures()}
+      <p>ロード中</p>
+      {:then response}
+      {#each response as item}
+        <CheckBox prefItems={item} />
+      {/each}
+    {/await}
   </main>
 </div>
 
